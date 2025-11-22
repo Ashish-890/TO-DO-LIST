@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Task</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="app-shell">
+    <main class="main-panel">
+        <div class="task-box">
+            <h1>Edit task</h1>
+
+            <form action="/edit/{{ todo.id }}" method="post" class="task-form">
+                <div class="task-main-inputs">
+                    <input type="text" name="title" value="{{ todo.title }}" required>
+                    <input type="date" name="due_date" class="task-date"
+                           value="{% if todo.due_date %}{{ todo.due_date }}{% endif %}">
+                </div>
+
+                <div class="task-extra-row">
+                    <div class="task-extra-left">
+                        <label class="pill-label">
+                            Priority
+                            <select name="priority">
+                                <option value="low" {% if todo.priority == "low" %}selected{% endif %}>Low</option>
+                                <option value="medium" {% if todo.priority == "medium" %}selected{% endif %}>Medium</option>
+                                <option value="high" {% if todo.priority == "high" %}selected{% endif %}>High</option>
+                            </select>
+                        </label>
+
+                        <label class="pill-label">
+                            Project
+                            <select name="project">
+                                <option value="Inbox" {% if todo.project == "Inbox" %}selected{% endif %}>Inbox</option>
+                                <option value="Today" {% if todo.project == "Today" %}selected{% endif %}>Today</option>
+                                <option value="Upcoming" {% if todo.project == "Upcoming" %}selected{% endif %}>Upcoming</option>
+
+                                <option value="Education" {% if todo.project == "Education" %}selected{% endif %}>Education 📚</option>
+                                <option value="My work" {% if todo.project == "My work" %}selected{% endif %}>My work 🎯</option>
+                                <option value="Gym" {% if todo.project == "Gym" %}selected{% endif %}>Gym 🏋️</option>
+                                <option value="College work" {% if todo.project == "College work" %}selected{% endif %}>College work 📝</option>
+                                <option value="Side project" {% if todo.project == "Side project" %}selected{% endif %}>Side project 🚀</option>
+                            </select>
+                        </label>
+                    </div>
+
+                    <div class="task-extra-right">
+                        <button type="submit" class="primary-btn">Save</button>
+                    </div>
+                </div>
+            </form>
+
+            <a href="/?project={{ todo.project }}" class="back-link">
+                ← Back to {{ todo.project }}
+            </a>
+        </div>
+    </main>
+</div>
+
+</body>
+</html>

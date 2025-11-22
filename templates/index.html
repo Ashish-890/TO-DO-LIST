@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>To-Do List</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="app-shell">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="avatar-circle">
+                <span>A</span>
+            </div>
+            <div class="sidebar-user">
+                <div class="user-name">Ashish</div>
+                <div class="user-goal">
+                    Daily goal: {{ stats.completed }}/{{ stats.total or 1 }} tasks
+                </div>
+            </div>
+        </div>
+
+        <!-- Big red button -> scroll to add section -->
+        <a href="#add-task-section" class="sidebar-add-btn">
+            <span class="plus-icon">＋</span>
+            Add task
+        </a>
+
+        <!-- Main sections -->
+        <nav class="sidebar-nav">
+            <a href="/?project=Inbox"
+               class="nav-item {% if project == 'Inbox' %}active{% endif %}">
+                Inbox
+            </a>
+            <a href="/?project=Today"
+               class="nav-item {% if project == 'Today' %}active{% endif %}">
+                Today
+            </a>
+            <a href="/?project=Upcoming"
+               class="nav-item {% if project == 'Upcoming' %}active{% endif %}">
+                Upcoming
+            </a>
+        </nav>
+
+        <!-- Workspace projects -->
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Workspace</div>
+
+            <a href="/?project=Education"
+               class="nav-item small {% if project == 'Education' %}active{% endif %}">
+                Education 📚
+            </a>
+
+            <a href="/?project=My work"
+               class="nav-item small {% if project == 'My work' %}active{% endif %}">
+                My work 🎯
+            </a>
+
+            <a href="/?project=Gym"
+               class="nav-item small {% if project == 'Gym' %}active{% endif %}">
+                Gym 🏋️
+            </a>
+
+            <a href="/?project=College work"
+               class="nav-item small {% if project == 'College work' %}active{% endif %}">
+                College work 📝
+            </a>
+
+            <a href="/?project=Side project"
+               class="nav-item small {% if project == 'Side project' %}active{% endif %}">
+                Side project 🚀
+            </a>
+        </div>
+
+        <div class="sidebar-footer">
+            <a href="#" class="help-link">Help &amp; resources</a>
+        </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="main-panel">
+        <header class="main-header">
+            <h1>{{ project }}</h1>
+        </header>
+
+        <!-- Stats row -->
+        <section class="stats-row">
+            <div class="stat-card">
+                <div class="stat-label">Total</div>
+                <div class="stat-value">{{ stats.total }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Completed</div>
+                <div class="stat-value">{{ stats.completed }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Pending</div>
+                <div class="stat-value">{{ stats.pending }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">High Priority</div>
+                <div class="stat-value">{{ stats.high_priority_pending }}</div>
+            </div>
+        </section>
+
+        <!-- Add task box -->
+        <section id="add-task-section" class="task-box">
+            <form action="/add" method="post" class="task-form">
+                <!-- keep current project when adding -->
+                <input type="hidden" name="project" value="{{ project }}">
+
+                <div class="task-main-inputs">
+                    <input type="text" name="title" placeholder="Task name" required>
+                    <input type="date" name="due_date" class="task-date">
+                </div>
+                <div class="task-extra-row">
+                    <div class="task-extra-left">
+                        <label class="pill-label">
+                            Priority
+                            <select name="priority">
+                                <option value="low">Low</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="high">High</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div class="task-extra-right">
+                        <button type="submit" class="primary-btn">Add task</button>
+                    </div>
+                </div>
+            </form>
+        </section>
+
+        <!-- Filters + search row -->
+        <section class="filters-row">
+            <form action="/" method="get" class="filter-form">
+                <input type="hidden" name="project" value="{{ project }}">
+                <input type="text" name="q" placeholder="Search tasks..." value="{{ q }}">
+                <select name="priority_filter">
+                    <option value="all" {% if priority_filter == "all" %}selected{% endif %}>All priorities</option>
+                    <option value="low" {% if priority_filter == "low" %}selected{% endif %}>Low</option>
+                    <option value="medium" {% if priority_filter == "medium" %}selected{% endif %}>Medium</option>
+                    <option value="high" {% if priority_filter == "high" %}selected{% endif %}>High</option>
+                </select>
+                <button type="submit" class="secondary-btn">Filter</button>
+            </form>
+        </section>
+
+        <!-- Tasks list -->
+        <section class="tasks-section">
+            {% for todo in todos %}
+            <article class="task-row {% if todo.is_done %}done{% endif %}">
+                <form action="/toggle/{{ todo.id }}" method="post" class="task-toggle-form">
+                    <button class="circle-toggle" title="Toggle complete">
+                        {% if todo.is_done %}●{% else %}○{% endif %}
+                    </button>
+                </form>
+
+                <div class="task-content">
+                    <div class="task-title-line">
+                        <span class="task-title">{{ todo.title }}</span>
+                    </div>
+                    <div class="task-meta">
+                        <span class="badge priority-{{ todo.priority }}">
+                            {{ todo.priority|capitalize }}
+                        </span>
+                        {% if todo.due_date %}
+                        <span class="badge due-badge">
+                            Due: {{ todo.due_date }}
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="task-actions">
+                    <a href="/edit/{{ todo.id }}" class="edit-link">Edit</a>
+                    <form action="/delete/{{ todo.id }}" method="post">
+                        <button class="delete-btn" title="Delete">✕</button>
+                    </form>
+                </div>
+            </article>
+            {% else %}
+            <p class="empty-state">No tasks yet. Add your first task above.</p>
+            {% endfor %}
+        </section>
+    </main>
+</div>
+
+</body>
+</html>
